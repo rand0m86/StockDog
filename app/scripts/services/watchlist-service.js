@@ -8,13 +8,45 @@
  * Service in the stockDogApp.
  */
 angular.module('stockDogApp')
-  .service('WatchlistService', function WatchListService() {
-    var loadModel = function() {
+  .service('WatchlistService', function watchlistService() {
+    var loadModel = function () {
       return {
-        watchLists: localStorage['StockDog.watchLists'] ?
-          JSON.parse(localStorage['StockDog.watchLists']) : [],
+        watchlists: localStorage['StockDog.watchlists'] ?
+          JSON.parse(localStorage['StockDog.watchlists']) : [],
         nextId: localStorage['StockDog.nextId'] ?
           parseInt(localStorage['StockDog.nextId'], 10) : 0
       };
     };
+
+    var saveModel = function () {
+      localStorage['StockDog.watchlists'] = JSON.stringify(Model.watchlists);
+      localStorage['StockDog.nextId'] = Model.nextId;
+    };
+
+    var findById = function (listId) {
+      return _.find(Model.watchlists, function (watchlist) {
+        return watchlist.id === parseInt(listId);
+      });
+    };
+
+    this.query = function (listId) {
+      if (listId) {
+        return findById(listId);
+      }
+      return Model.watchlists;
+    };
+
+    this.save = function (watchlist) {
+      watchlist.id = Model.nextId++;
+      Model.watchlists.push(watchlist);
+      saveModel();
+    };
+
+    this.remove = function (watchlist) {
+      _.remove(Model.watchlists, function (list) {
+        return list.id === watchlist.id;
+      });
+      saveModel();
+    };
+    var Model = loadModel();
   });
